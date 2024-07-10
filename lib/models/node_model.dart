@@ -1,18 +1,29 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 
 class NodeModel {
-  int index;
-  Offset loc;
+  final int id;
+  Offset pos;
   String? name;
-  Color? color;
+  Color color;
   String? des;
   String? imageUrl;
-  NodeModel? child;
+  final List<int> child = [];
+
+  set setPos(Offset pos) => this.pos = pos;
+
+  set setName(String name) => this.name = name;
+
+  set setColor(Color color) => this.color = color;
+
+  set setDes(String des) => this.des = des;
+
+  set setImageUrl(String imageUrl) => this.imageUrl = imageUrl;
+
+  set setChild(int nodeId) => child.add(nodeId);
 
   NodeModel({
-    required this.index,
-    required this.loc,
+    required this.id,
+    required this.pos,
     this.name,
     this.color = Colors.blue,
     this.des,
