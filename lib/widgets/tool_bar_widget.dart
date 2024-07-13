@@ -14,6 +14,7 @@ class ToolBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      constraints: BoxConstraints(minWidth: 200),
       width: MediaQuery.of(context).size.width / 5,
       height: 70,
       margin: const EdgeInsets.only(bottom: 24),
