@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mind_map/models/page_controller.dart';
+import 'package:mind_map/utils/line_painter.dart';
 import 'package:mind_map/widgets/node_widget.dart';
 import 'package:mind_map/widgets/tool_bar_widget.dart';
 
@@ -47,6 +48,10 @@ class _HomePageState extends State<HomePage> {
     List<NodeWidget> nodesWidgets = [];
     for (int i = 0; i < controller.nodes.length; i++) {
       nodesWidgets.add(NodeWidget(
+        onTap: () {
+          print("tap  ${i}");
+          controller.drawLine(i);
+        },
         nodeModel: controller.nodes[i],
         onPanUpdate: (details) {
           controller.changeNodePos(i, controller.nodes[i].pos + details.delta);
@@ -69,104 +74,105 @@ class _HomePageState extends State<HomePage> {
         child: GetBuilder<MainPageController>(
           id: "createNode",
           builder: (controller) {
-            return Stack(
-              children: [
-                ...createNodeWidget(),
-                // NodeWidget(
-                //   nodeModel: NodeModel(
-                //       id: 1,
-                //       pos: Offset(100, 100),
-                //       name: "ایده برتر",
-                //       des:
-                //           "سلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبهه",
-                //       imageUrl:
-                //           "https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/Sunset-900x600.jpeg"),
-                //   onPanUpdate: (details) {
-                //     setState(() {
-                //       // _circle2Position += details.delta;
-                //     });
-                //   },
-                // ),
-                GetBuilder<MainPageController>(
-                    id: "dragPosition",
-                    builder: (controller) {
+            return CustomPaint(
+              painter: LinePainter(poses: controller.getPoses()),
+              // size: Size.infinite,
+              child: Stack(
+                children: [
+                  ...createNodeWidget(),
+                  // NodeWidget(
+                  //   nodeModel: NodeModel(
+                  //       id: 1,
+                  //       pos: Offset(100, 100),
+                  //       name: "ایده برتر",
+                  //       des:
+                  //           "سلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبهه",
+                  //       imageUrl:
+                  //           "https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/Sunset-900x600.jpeg"),
+                  //   onPanUpdate: (details) {
+                  //     setState(() {
+                  //       // _circle2Position += details.delta;
+                  //     });
+                  //   },
+                  // ),
+                  GetBuilder<MainPageController>(
+                      id: "dragPosition",
+                      builder: (controller) {
+                        if (controller.isAddingCircle) {
+                          return Positioned(
+                            left: controller.dragPosition.dx - 35,
+                            top: controller.dragPosition.dy - 20,
+                            child: IgnorePointer(
+                              child: Opacity(
+                                opacity: 0.5,
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  height: 40,
+                                  width: 70,
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          width: 2, color: Colors.blue),
+                                      borderRadius: BorderRadius.circular(4)),
+                                  child: const Text(
+                                    "Node",
+                                    style: TextStyle(
+                                        color: Colors.blue, fontSize: 12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        } else if (controller.isAddingEdge) {
+                          return Positioned(
+                            left: controller.dragPosition.dx - 35,
+                            top: controller.dragPosition.dy - 20,
+                            child: IgnorePointer(
+                              child: Opacity(
+                                opacity: 0.5,
+                                child: Container(
+                                  width: 70,
+                                  // height: 40,
+                                  decoration: const BoxDecoration(
+                                      border: Border(
+                                          bottom: BorderSide(
+                                              color: Colors.blue, width: 2))),
+                                  child: const Text(
+                                    "Edge",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        color: Colors.blue, fontSize: 12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        } else {
+                          return Container();
+                        }
+                      }),
+                  GestureDetector(
+                    onTapDown: (details) {
+                      final key = UniqueKey();
                       if (controller.isAddingCircle) {
-                        return Positioned(
-                          left: controller.dragPosition.dx - 35,
-                          top: controller.dragPosition.dy - 20,
-                          child: IgnorePointer(
-                            child: Opacity(
-                              opacity: 0.5,
-                              child: Container(
-                                alignment: Alignment.center,
-                                height: 40,
-                                width: 70,
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                        width: 2, color: Colors.blue),
-                                    borderRadius: BorderRadius.circular(4)),
-                                child: const Text(
-                                  "Node",
-                                  style: TextStyle(
-                                      color: Colors.blue, fontSize: 12),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      } else if (controller.isAddingEdge) {
-                        return Positioned(
-                          left: controller.dragPosition.dx - 35,
-                          top: controller.dragPosition.dy - 20,
-                          child: IgnorePointer(
-                            child: Opacity(
-                              opacity: 0.5,
-                              child: Container(
-                                width: 70,
-                                // height: 40,
-                                decoration: const BoxDecoration(
-                                    border: Border(
-                                        bottom: BorderSide(
-                                            color: Colors.blue, width: 2))),
-                                child: const Text(
-                                  "Edge",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: Colors.blue, fontSize: 12),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      } else {
-                        return Container();
+                        controller.createNode(
+                            key.hashCode, details.localPosition);
+                        controller.setIsAddingCircle = false;
                       }
-                    }),
-                GestureDetector(
-                  onTapDown: (details) {
-                    final key = UniqueKey();
-                    if (controller.isAddingCircle) {
-                      controller.createNode(
-                          key.hashCode, details.localPosition);
-                      controller.setIsAddingCircle = false;
-                    }
-                    if (controller.isAddingEdge) {
-                      controller.setIsAddingEdge = false;
-                    }
-                  },
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: ToolBarWidget(
-                    edgeOnTap: () {
-                      controller.setIsAddingEdge = true;
-                    },
-                    nodeOnTap: () {
-                      controller.setIsAddingCircle = true;
                     },
                   ),
-                )
-              ],
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: ToolBarWidget(
+                      edgeOnTap: () {
+                        controller.setIsAddingEdge = true;
+                      },
+                      nodeOnTap: () {
+                        controller.setIsAddingCircle = true;
+                      },
+                    ),
+                  )
+                ],
+              ),
             );
           },
         ));
