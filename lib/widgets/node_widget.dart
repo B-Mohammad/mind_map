@@ -3,11 +3,13 @@ import 'package:mind_map/models/node_model.dart';
 
 class NodeWidget extends StatelessWidget {
   final NodeModel nodeModel;
-  final void Function(DragUpdateDetails)? onPanUpdate;
+  final void Function(DragUpdateDetails details)? onPanUpdate;
+  final void Function()? onTap;
   const NodeWidget({
     super.key,
     required this.nodeModel,
     required this.onPanUpdate,
+    required this.onTap,
   });
 
   @override
@@ -18,13 +20,12 @@ class NodeWidget extends StatelessWidget {
       child: MouseRegion(
         cursor: SystemMouseCursors.grab,
         child: GestureDetector(
+            onDoubleTap: onTap,
             onPanUpdate: onPanUpdate,
-            //  (details) {
-            //   setState(() {
-            //     _circle2Position += details.delta;
-            //   });
-            // },
-            child: Container(width: 160,height: 90,padding: EdgeInsets.all(4),
+            child: Container(
+              width: 160,
+              height: 90,
+              padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
@@ -43,17 +44,21 @@ class NodeWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Image.network(
-                    nodeModel.imageUrl ?? "",
-                    fit: BoxFit.cover,
-                    width: 60,
-                    height: 40,
+                  // Image.network(
+                  //   nodeModel.imageUrl ?? "",
+                  //   fit: BoxFit.cover,
+                  //   width: 60,
+                  //   height: 40,
+                  // ),
+                  Text(
+                    nodeModel.name ?? "",
+                    style: const TextStyle(fontSize: 12),
                   ),
-                  Text(nodeModel.name ?? "",style: TextStyle(fontSize: 12),),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text(style: TextStyle(fontSize: 12),
+                      child: Text(
+                          style: const TextStyle(fontSize: 12),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           nodeModel.des ?? ""),
