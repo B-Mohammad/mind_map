@@ -5,10 +5,12 @@ import 'package:mind_map/models/node_model.dart';
 
 class MainPageController extends GetxController {
   List<NodeModel> nodes = [];
-  List<EdgeModel> edges = [];
+  Set<EdgeModel> edges = {};
   bool isAddingCircle = false;
   bool isAddingEdge = false;
   Offset dragPosition = Offset.zero;
+  int lock = 0;
+  int? selectedNode;
 
   void deleteNode(int index) {}
 
@@ -37,5 +39,30 @@ class MainPageController extends GetxController {
   void changeNodePos(int index, Offset pos) {
     nodes[index].pos = pos;
     update(["createNode"]);
+  }
+
+  void drawLine(int index) {
+    if (isAddingEdge) {
+      lock++;
+      if (lock % 2 == 0 && index != selectedNode) {
+        isAddingEdge = false;
+        edges.add(EdgeModel(leftNodeId: selectedNode!, rightNodeId: index));
+        isAddingEdge = false;
+        update(["createNode"]);
+      } else if (lock % 2 == 0 && index == selectedNode) {
+        selectedNode = null;
+      } else {
+        selectedNode = index;
+      }
+    }
+  }
+
+  Set<List<Offset>> getPoses() {
+    Set<List<Offset>> pos = {};
+    for (var element in edges) {
+      pos.add([nodes[element.leftNodeId].pos, nodes[element.rightNodeId].pos]);
+    }
+    print(pos);
+    return pos;
   }
 }
