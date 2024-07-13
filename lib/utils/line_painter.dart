@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
 
-class CircleLinePainter extends CustomPainter {
-  final Offset circle1Position;
-  final Offset circle2Position;
+class LinePainter extends CustomPainter {
+  Set<List<Offset>> poses;
   final Color color;
 
-  CircleLinePainter(
-      {required this.circle1Position,
-      required this.circle2Position,
-      this.color = Colors.blue});
+  LinePainter({required this.poses, this.color = Colors.blue});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
       ..strokeWidth = 2;
-
-    canvas.drawLine(circle1Position, circle2Position, paint);
+    for (var element in poses) {
+      canvas.drawLine(element[0], element[1], paint);
+    }
   }
 
   @override
