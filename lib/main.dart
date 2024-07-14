@@ -38,15 +38,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late MainPageController controller;
-  // List<NodeModel> circlePositions = [];
 
   // final FocusNode _focusNode = FocusNode();
-
   // double minDistance = 40.0;
 
   List<NodeWidget> createNodeWidget() {
     List<NodeWidget> nodesWidgets = [];
     for (int i = 0; i < controller.nodes.length; i++) {
+      print(controller.nodes[i].pos);
       nodesWidgets.add(NodeWidget(
         onTap: () {
           print("tap  ${i}");
@@ -80,21 +79,6 @@ class _HomePageState extends State<HomePage> {
               child: Stack(
                 children: [
                   ...createNodeWidget(),
-                  // NodeWidget(
-                  //   nodeModel: NodeModel(
-                  //       id: 1,
-                  //       pos: Offset(100, 100),
-                  //       name: "ایده برتر",
-                  //       des:
-                  //           "سلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبههسلان تیسبهه",
-                  //       imageUrl:
-                  //           "https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/Sunset-900x600.jpeg"),
-                  //   onPanUpdate: (details) {
-                  //     setState(() {
-                  //       // _circle2Position += details.delta;
-                  //     });
-                  //   },
-                  // ),
                   GetBuilder<MainPageController>(
                       id: "dragPosition",
                       builder: (controller) {
@@ -154,8 +138,12 @@ class _HomePageState extends State<HomePage> {
                     onTapDown: (details) {
                       final key = UniqueKey();
                       if (controller.isAddingCircle) {
+                        print(details.localPosition - const Offset(80, 45));
+                        print(details.localPosition);
+                        Offset temp =
+                            details.localPosition - const Offset(80, 45);
                         controller.createNode(
-                            key.hashCode, details.localPosition);
+                            pos: temp, name: "card ${key.hashCode}");
                         controller.setIsAddingCircle = false;
                       }
                     },
