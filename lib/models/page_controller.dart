@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mind_map/models/edge_model.dart';
 import 'package:mind_map/models/node_model.dart';
@@ -14,8 +15,15 @@ class MainPageController extends GetxController {
 
   void deleteNode(int index) {}
 
-  void createNode(int id, Offset pos) {
-    nodes.add(NodeModel(id: id, pos: pos, name: id.toString()));
+  void createNode({
+    required Offset pos,
+    required String name,
+    Color color = Colors.blue,
+    String? des,
+    String? imageUrl,
+  }) {
+    nodes.add(NodeModel(
+        pos: pos, name: name, color: color, des: des, imageUrl: imageUrl));
     update(["createNode"]);
   }
 
@@ -38,7 +46,9 @@ class MainPageController extends GetxController {
 
   void changeNodePos(int index, Offset pos) {
     nodes[index].pos = pos;
+    print("++++$pos");
     update(["createNode"]);
+    print(nodes[index].pos);
   }
 
   void drawLine(int index) {
@@ -47,6 +57,7 @@ class MainPageController extends GetxController {
       if (lock % 2 == 0 && index != selectedNode) {
         isAddingEdge = false;
         edges.add(EdgeModel(leftNodeId: selectedNode!, rightNodeId: index));
+
         isAddingEdge = false;
         update(["createNode"]);
       } else if (lock % 2 == 0 && index == selectedNode) {
@@ -55,14 +66,19 @@ class MainPageController extends GetxController {
         selectedNode = index;
       }
     }
+    // print(edges);
   }
 
   Set<List<Offset>> getPoses() {
     Set<List<Offset>> pos = {};
     for (var element in edges) {
-      pos.add([nodes[element.leftNodeId].pos, nodes[element.rightNodeId].pos]);
+      // print(nodes[element.leftNodeId].pos);
+      pos.add([
+        nodes[element.leftNodeId].pos + const Offset(80, 45),
+        nodes[element.rightNodeId].pos + const Offset(80, 45)
+      ]);
     }
-    print(pos);
+    // print(pos);
     return pos;
   }
 }
