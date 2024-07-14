@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mind_map/models/page_controller.dart';
 import 'package:mind_map/utils/line_painter.dart';
@@ -39,16 +40,16 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late MainPageController controller;
 
-  // final FocusNode _focusNode = FocusNode();
+  final FocusNode _focusNode = FocusNode();
   // double minDistance = 40.0;
 
   List<NodeWidget> createNodeWidget() {
     List<NodeWidget> nodesWidgets = [];
     for (int i = 0; i < controller.nodes.length; i++) {
-      print(controller.nodes[i].pos);
+      // print(controller.nodes[i].pos);
       nodesWidgets.add(NodeWidget(
         onTap: () {
-          print("tap  ${i}");
+          // print("tap  ${i}");
           controller.drawLine(i);
         },
         nodeModel: controller.nodes[i],
@@ -63,107 +64,119 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     controller = Get.put(MainPageController());
-    return MouseRegion(
-        cursor: controller.isAddingCircle
-            ? SystemMouseCursors.click
-            : MouseCursor.defer,
-        onHover: (event) {
-          controller.setDragPosition = event.localPosition;
-        },
-        child: GetBuilder<MainPageController>(
-          id: "createNode",
-          builder: (controller) {
-            return CustomPaint(
-              painter: LinePainter(poses: controller.getPoses()),
-              // size: Size.infinite,
-              child: Stack(
-                children: [
-                  ...createNodeWidget(),
-                  GetBuilder<MainPageController>(
-                      id: "dragPosition",
-                      builder: (controller) {
+    return KeyboardListener(
+      focusNode: _focusNode,
+      autofocus: true,
+      onKeyEvent: (value) {
+        if (value.logicalKey == LogicalKeyboardKey.escape) {
+          if (controller.isAddingCircle || controller.isAddingEdge) {
+            controller.setIsAddingCircle = false;
+            controller.setIsAddingEdge = false;
+          }
+        }
+      },
+      child: MouseRegion(
+          cursor: controller.isAddingCircle
+              ? SystemMouseCursors.click
+              : MouseCursor.defer,
+          onHover: (event) {
+            controller.setDragPosition = event.localPosition;
+          },
+          child: GetBuilder<MainPageController>(
+            id: "createNode",
+            builder: (controller) {
+              return CustomPaint(
+                painter: LinePainter(poses: controller.getPoses()),
+                // size: Size.infinite,
+                child: Stack(
+                  children: [
+                    ...createNodeWidget(),
+                    GetBuilder<MainPageController>(
+                        id: "dragPosition",
+                        builder: (controller) {
+                          if (controller.isAddingCircle) {
+                            return Positioned(
+                              left: controller.dragPosition.dx - 35,
+                              top: controller.dragPosition.dy - 20,
+                              child: IgnorePointer(
+                                child: Opacity(
+                                  opacity: 0.5,
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    height: 40,
+                                    width: 70,
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            width: 2, color: Colors.blue),
+                                        borderRadius: BorderRadius.circular(4)),
+                                    child: const Text(
+                                      "Node",
+                                      style: TextStyle(
+                                          color: Colors.blue, fontSize: 12),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          } else if (controller.isAddingEdge) {
+                            return Positioned(
+                              left: controller.dragPosition.dx - 35,
+                              top: controller.dragPosition.dy - 20,
+                              child: IgnorePointer(
+                                child: Opacity(
+                                  opacity: 0.5,
+                                  child: Container(
+                                    width: 70,
+                                    // height: 40,
+                                    decoration: const BoxDecoration(
+                                        border: Border(
+                                            bottom: BorderSide(
+                                                color: Colors.blue, width: 2))),
+                                    child: const Text(
+                                      "Edge",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: Colors.blue, fontSize: 12),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          } else {
+                            return Container();
+                          }
+                        }),
+                    GestureDetector(
+                      onTapDown: (details) {
+                        final key = UniqueKey();
                         if (controller.isAddingCircle) {
-                          return Positioned(
-                            left: controller.dragPosition.dx - 35,
-                            top: controller.dragPosition.dy - 20,
-                            child: IgnorePointer(
-                              child: Opacity(
-                                opacity: 0.5,
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  height: 40,
-                                  width: 70,
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          width: 2, color: Colors.blue),
-                                      borderRadius: BorderRadius.circular(4)),
-                                  child: const Text(
-                                    "Node",
-                                    style: TextStyle(
-                                        color: Colors.blue, fontSize: 12),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        } else if (controller.isAddingEdge) {
-                          return Positioned(
-                            left: controller.dragPosition.dx - 35,
-                            top: controller.dragPosition.dy - 20,
-                            child: IgnorePointer(
-                              child: Opacity(
-                                opacity: 0.5,
-                                child: Container(
-                                  width: 70,
-                                  // height: 40,
-                                  decoration: const BoxDecoration(
-                                      border: Border(
-                                          bottom: BorderSide(
-                                              color: Colors.blue, width: 2))),
-                                  child: const Text(
-                                    "Edge",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        color: Colors.blue, fontSize: 12),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        } else {
-                          return Container();
+                          // print(details.localPosition - const Offset(80, 45));
+                          // print(details.localPosition);
+                          Offset temp =
+                              details.localPosition - const Offset(80, 45);
+                          controller.createNode(
+                              pos: temp, name: "card ${key.hashCode}");
+                          controller.setIsAddingCircle = false;
                         }
-                      }),
-                  GestureDetector(
-                    onTapDown: (details) {
-                      final key = UniqueKey();
-                      if (controller.isAddingCircle) {
-                        print(details.localPosition - const Offset(80, 45));
-                        print(details.localPosition);
-                        Offset temp =
-                            details.localPosition - const Offset(80, 45);
-                        controller.createNode(
-                            pos: temp, name: "card ${key.hashCode}");
-                        controller.setIsAddingCircle = false;
-                      }
-                    },
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: ToolBarWidget(
-                      edgeOnTap: () {
-                        controller.setIsAddingEdge = true;
-                      },
-                      nodeOnTap: () {
-                        controller.setIsAddingCircle = true;
                       },
                     ),
-                  )
-                ],
-              ),
-            );
-          },
-        ));
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: ToolBarWidget(
+                        edgeOnTap: () {
+                          controller.setIsAddingEdge = true;
+                        },
+                        nodeOnTap: () {
+                          controller.setIsAddingCircle = true;
+                        },
+                      ),
+                    )
+                  ],
+                ),
+              );
+            },
+          )),
+    );
   }
 
   // @override
