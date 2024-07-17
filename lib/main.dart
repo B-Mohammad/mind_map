@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mind_map/models/page_controller.dart';
 import 'package:mind_map/utils/line_painter.dart';
+import 'package:mind_map/widgets/custom_dialog.dart';
 import 'package:mind_map/widgets/node_widget.dart';
 import 'package:mind_map/widgets/tool_bar_widget.dart';
 
@@ -38,9 +39,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late MainPageController controller;
-
-  final FocusNode _focusNode = FocusNode();
+  late final MainPageController controller;
+  late final FocusNode _focusNode;
   // double minDistance = 40.0;
 
   List<NodeWidget> createNodeWidget() {
@@ -48,8 +48,13 @@ class _HomePageState extends State<HomePage> {
     for (int i = 0; i < controller.nodes.length; i++) {
       // print(controller.nodes[i].pos);
       nodesWidgets.add(NodeWidget(
-        onTap: () {
-          // print("tap  ${i}");
+        onTap: () async {
+          print("tap  ${i}");
+          if (!controller.isAddingEdge && !controller.isAddingEdge) {
+            final result = await _showCustomDialog(
+                context: context, data: controller.nodes[i].toMap());
+            controller.updateNode(result, i);
+          }
           controller.drawLine(i);
         },
         nodeModel: controller.nodes[i],
@@ -61,17 +66,43 @@ class _HomePageState extends State<HomePage> {
     return nodesWidgets;
   }
 
+  Future<Map<String, String?>?> _showCustomDialog(
+      {required BuildContext context, Map<String, String?>? data}) {
+    return showDialog<Map<String, String?>>(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          child: CustomDialog(data: data),
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    controller = Get.put(MainPageController());
+    super.initState();
+    _focusNode = FocusNode();
+  }
+
   @override
   Widget build(BuildContext context) {
-    controller = Get.put(MainPageController());
     return KeyboardListener(
       focusNode: _focusNode,
       autofocus: true,
       onKeyEvent: (value) {
         if (value.logicalKey == LogicalKeyboardKey.escape) {
           if (controller.isAddingCircle || controller.isAddingEdge) {
-            controller.setIsAddingCircle = false;
-            controller.setIsAddingEdge = false;
+            controller.cancelActs();
           }
         }
       },
@@ -83,7 +114,7 @@ class _HomePageState extends State<HomePage> {
             controller.setDragPosition = event.localPosition;
           },
           child: GetBuilder<MainPageController>(
-            id: "createNode",
+            // id: "createNode",
             builder: (controller) {
               return CustomPaint(
                 painter: LinePainter(poses: controller.getPoses()),
@@ -92,71 +123,74 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     ...createNodeWidget(),
                     GetBuilder<MainPageController>(
-                        id: "dragPosition",
+                        // id: "dragPosition",
                         builder: (controller) {
-                          if (controller.isAddingCircle) {
-                            return Positioned(
-                              left: controller.dragPosition.dx - 35,
-                              top: controller.dragPosition.dy - 20,
-                              child: IgnorePointer(
-                                child: Opacity(
-                                  opacity: 0.5,
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    height: 40,
-                                    width: 70,
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                            width: 2, color: Colors.blue),
-                                        borderRadius: BorderRadius.circular(4)),
-                                    child: const Text(
-                                      "Node",
-                                      style: TextStyle(
-                                          color: Colors.blue, fontSize: 12),
-                                    ),
-                                  ),
+                      if (controller.isAddingCircle) {
+                        return Positioned(
+                          left: controller.dragPosition.dx - 35,
+                          top: controller.dragPosition.dy - 20,
+                          child: IgnorePointer(
+                            child: Opacity(
+                              opacity: 0.5,
+                              child: Container(
+                                alignment: Alignment.center,
+                                height: 40,
+                                width: 70,
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                        width: 2, color: Colors.blue),
+                                    borderRadius: BorderRadius.circular(4)),
+                                child: const Text(
+                                  "Node",
+                                  style: TextStyle(
+                                      color: Colors.blue, fontSize: 12),
                                 ),
                               ),
-                            );
-                          } else if (controller.isAddingEdge) {
-                            return Positioned(
-                              left: controller.dragPosition.dx - 35,
-                              top: controller.dragPosition.dy - 20,
-                              child: IgnorePointer(
-                                child: Opacity(
-                                  opacity: 0.5,
-                                  child: Container(
-                                    width: 70,
-                                    // height: 40,
-                                    decoration: const BoxDecoration(
-                                        border: Border(
-                                            bottom: BorderSide(
-                                                color: Colors.blue, width: 2))),
-                                    child: const Text(
-                                      "Edge",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: Colors.blue, fontSize: 12),
-                                    ),
-                                  ),
+                            ),
+                          ),
+                        );
+                      } else if (controller.isAddingEdge) {
+                        return Positioned(
+                          left: controller.dragPosition.dx - 35,
+                          top: controller.dragPosition.dy - 20,
+                          child: IgnorePointer(
+                            child: Opacity(
+                              opacity: 0.5,
+                              child: Container(
+                                width: 70,
+                                // height: 40,
+                                decoration: const BoxDecoration(
+                                    border: Border(
+                                        bottom: BorderSide(
+                                            color: Colors.blue, width: 2))),
+                                child: const Text(
+                                  "Edge",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.blue, fontSize: 12),
                                 ),
                               ),
-                            );
-                          } else {
-                            return Container();
-                          }
-                        }),
+                            ),
+                          ),
+                        );
+                      } else {
+                        return Container();
+                      }
+                    }),
                     GestureDetector(
-                      onTapDown: (details) {
-                        final key = UniqueKey();
+                      onTapDown: (details) async {
                         if (controller.isAddingCircle) {
-                          // print(details.localPosition - const Offset(80, 45));
-                          // print(details.localPosition);
-                          Offset temp =
-                              details.localPosition - const Offset(80, 45);
-                          controller.createNode(
-                              pos: temp, name: "card ${key.hashCode}");
-                          controller.setIsAddingCircle = false;
+                          final result =
+                              await _showCustomDialog(context: context);
+                          print(result);
+                          if (result != null) {
+                            controller.createNode(
+                                pos: details.localPosition -
+                                    const Offset(80, 45),
+                                des: result["des"],
+                                imageUrl: result["imgUrl"],
+                                name: result["name"]);
+                          }
                         }
                       },
                     ),
@@ -178,163 +212,4 @@ class _HomePageState extends State<HomePage> {
           )),
     );
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return KeyboardListener(
-  //     focusNode: _focusNode,
-  //     autofocus: true,
-  //     onKeyEvent: (event) {
-  //       if (event.logicalKey == LogicalKeyboardKey.escape && isAddingCircle) {
-  //         setState(() {
-  //           isAddingCircle = false;
-  //         });
-  //       }
-  //     },
-  //     child: DragTarget<int>(onAcceptWithDetails: (details) {
-  //       setState(() {
-  //         // int index = circlePositions.indexOf(details.offset);
-  //         circlePositions[details.data] = details.offset;
-  //         print(details.data);
-  //         print(details.offset);
-  //         print("+++++++");
-  //       });
-  //     }, builder: (context, candidateData, rejectedData) {
-  //       print(candidateData);
-  //       return Stack(
-  //         children: [
-  //           ...circlePositions.asMap().entries.map((entry) {
-  //             int index = entry.key;
-  //             Offset position = entry.value;
-  //             print(index);
-  //             print(position);
-  //             return Positioned(
-  //               left: position.dx - 20,
-  //               top: position.dy - 20,
-  //               child: Draggable<int>(
-  //                 // key: ValueKey(index),
-  //                 data: index,
-  //                 feedback: CircleAvatar(
-  //                   radius: 20,
-  //                   backgroundColor: Colors.blue.withOpacity(0.5),
-  //                 ),
-  //                 // childWhenDragging: Container(),
-  //                 // onDragStarted: () {
-  //                 //   setState(() {
-  //                 //     isAddingCircle = true;
-  //                 //     print("dsf");
-  //                 //   });
-  //                 // },
-  //                 // onDraggableCanceled: (_, __) {},
-  //                 // onDragCompleted: () {},
-  //                 // onDragEnd: (details) {
-  //                 //   setState(() {
-  //                 //     circlePositions[index] = details.offset;
-  //                 //   });
-  //                 // },
-  //                 child: const CircleAvatar(
-  //                   radius: 20,
-  //                   backgroundColor: Colors.blue,
-  //                 ),
-  //               ),
-  //             );
-  //           }),
-  //           if (isAddingCircle)
-  //             Positioned(
-  //               left: dragPosition.dx - 20,
-  //               top: dragPosition.dy - 20,
-  //               child: const IgnorePointer(
-  //                 child: Opacity(
-  //                   opacity: 0.5,
-  //                   child: CircleAvatar(
-  //                     radius: 20,
-  //                     backgroundColor: Colors.blue,
-  //                   ),
-  //                 ),
-  //               ),
-  //             ),
-  //           GestureDetector(
-  //             onTapDown: (details) {
-  //               if (isAddingCircle) {
-  //                 bool canPlace = true;
-  //                 for (var pos in circlePositions) {
-  //                   double distance = (details.localPosition - pos).distance;
-  //                   if (distance < minDistance) {
-  //                     canPlace = false;
-  //                     break;
-  //                   }
-  //                 }
-  //                 if (canPlace) {
-  //                   setState(() {
-  //                     circlePositions.add(details.localPosition);
-  //                     isAddingCircle = false;
-  //                   });
-  //                 }
-  //               }
-  //             },
-  //             child: MouseRegion(
-  //               cursor: isAddingCircle
-  //                   ? SystemMouseCursors.click
-  //                   : MouseCursor.defer,
-  //               onHover: (event) {
-  //                 if (isAddingCircle) {
-  //                   setState(() {
-  //                     dragPosition = event.position;
-  //                   });
-  //                 }
-  //               },
-  //               child: Container(
-  //                 color: Colors.transparent,
-  //                 width: double.infinity,
-  //                 height: double.infinity,
-  //               ),
-  //             ),
-  //           ),
-  //           Align(
-  //             alignment: Alignment.bottomCenter,
-  //             child:
-  // Container(
-  //               width: MediaQuery.of(context).size.width / 5,
-  //               height: 70,
-  //               margin: const EdgeInsets.only(bottom: 24),
-  //               decoration: BoxDecoration(
-  //                 color: Colors.white,
-  //                 borderRadius: BorderRadius.circular(8),
-  //                 boxShadow: [
-  //                   BoxShadow(
-  //                     color: Colors.grey.withOpacity(0.5),
-  //                     spreadRadius: 5,
-  //                     blurRadius: 7,
-  //                     offset: const Offset(0, 3),
-  //                   ),
-  //                 ],
-  //               ),
-  //               child: Row(
-  //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //                 children: [
-  //                   Container(
-  //                     width: 50,
-  //                     height: 2,
-  //                     color: Colors.black,
-  //                   ),
-  //                   GestureDetector(
-  //                     onTap: () {
-  //                       setState(() {
-  //                         isAddingCircle = true;
-  //                       });
-  //                     },
-  //                     child: const CircleAvatar(
-  //                       radius: 20,
-  //                       backgroundColor: Colors.blue,
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ),
-  //         ],
-  //       );
-  //     }),
-  //   );
-  // }
 }
