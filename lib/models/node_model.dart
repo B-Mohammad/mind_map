@@ -27,4 +27,12 @@ class NodeModel {
     this.des,
     this.imageUrl,
   });
+
+  Map<String, String?> toMap() {
+    return <String, String?>{
+      'name': name,
+      'des': des,
+      'imgUrl': imageUrl,
+    };
+  }
 }
