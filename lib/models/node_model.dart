@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class NodeModel {
+  int id;
   Offset pos;
   String? name;
   Color color;
@@ -21,6 +22,7 @@ class NodeModel {
   set setChild(int nodeId) => child.add(nodeId);
 
   NodeModel({
+    required this.id,
     required this.pos,
     this.name,
     this.color = Colors.blue,
