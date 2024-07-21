@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class CustomDialog extends StatelessWidget {
+class CustomDialogCreateNode extends StatelessWidget {
   Map<String, String?>? data;
-  CustomDialog({
+  CustomDialogCreateNode({
     super.key,
     required this.data,
   });
