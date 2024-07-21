@@ -4,12 +4,14 @@ import 'package:mind_map/models/node_model.dart';
 class NodeWidget extends StatelessWidget {
   final NodeModel nodeModel;
   final void Function(DragUpdateDetails details)? onPanUpdate;
-  final void Function()? onTap;
+  final void Function()? onDoubleTap;
+  final void Function()? onLongPress;
   const NodeWidget({
     super.key,
     required this.nodeModel,
     required this.onPanUpdate,
-    required this.onTap,
+    required this.onDoubleTap,
+    required this.onLongPress,
   });
 
   @override
@@ -20,8 +22,9 @@ class NodeWidget extends StatelessWidget {
       child: MouseRegion(
         cursor: SystemMouseCursors.grab,
         child: GestureDetector(
-            onDoubleTap: onTap,
+            onDoubleTap: onDoubleTap,
             onPanUpdate: onPanUpdate,
+            onLongPress: onLongPress,
             child: Container(
               width: 160,
               height: 90,
@@ -44,12 +47,19 @@ class NodeWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Image.network(
-                  //   nodeModel.imageUrl ?? "",
-                  //   fit: BoxFit.cover,
-                  //   width: 60,
-                  //   height: 40,
-                  // ),
+                  nodeModel.imageUrl!.isNotEmpty
+                      ? Image.network(
+                          nodeModel.imageUrl ?? "",
+                          fit: BoxFit.cover,
+                          width: 60,
+                          height: 40,
+                          // errorBuilder: (context, error, stackTrace) {
+                          //   return Icon(
+                          //     CupertinoIcons.clear_circled,color: Colors.red,
+                          //   );
+                          // },
+                        )
+                      : Container(),
                   Text(
                     nodeModel.name ?? "",
                     style: const TextStyle(fontSize: 12),
