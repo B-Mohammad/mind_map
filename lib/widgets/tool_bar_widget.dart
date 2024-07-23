@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 
 class ToolBarWidget extends StatelessWidget {
@@ -14,7 +13,7 @@ class ToolBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(minWidth: 200),
+      constraints: const BoxConstraints(minWidth: 200),
       width: MediaQuery.of(context).size.width / 5,
       height: 70,
       margin: const EdgeInsets.only(bottom: 24),
@@ -60,10 +59,6 @@ class ToolBarWidget extends StatelessWidget {
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
                 onTap: nodeOnTap,
-                // setState(() {
-                //   isAddingCircle = true;
-                // });
-
                 child: Container(
                   alignment: Alignment.center,
                   height: 40,
