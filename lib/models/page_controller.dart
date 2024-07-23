@@ -11,12 +11,12 @@ class MainPageController extends GetxController {
   Offset dragPosition = Offset.zero;
   int lock = 0;
   int? selectedNode;
-  bool temp = false;
+  // bool temp = false;
 
-  set setTemp(bool temp) {
-    this.temp = temp;
-    update();
-  }
+  // set setTemp(bool temp) {
+  //   this.temp = temp;
+  //   update();
+  // }
 
   void cancelActs() {
     selectedNode = null;
@@ -27,8 +27,8 @@ class MainPageController extends GetxController {
   }
 
   void deleteNode(int index, List<EdgeModel> list) {
-    print(index);
-    print(list);
+    // print(index);
+    // print(list);
     // Set<EdgeModel> temp = {};
     // for (var element in edges) {
     //   if (element.leftNodeId == index || element.rightNodeId == index) {
@@ -46,7 +46,7 @@ class MainPageController extends GetxController {
     // print(temp);
     // setTemp = !temp;
     // print(temp);
-    setIsAddingEdge = true;
+    // setIsAddingEdge = true;
     update();
   }
 
@@ -61,7 +61,7 @@ class MainPageController extends GetxController {
     nodes.add(NodeModel(
         id: id,
         pos: pos,
-        name: id.toString(),
+        name: name,
         color: color,
         des: des,
         imageUrl: imageUrl));
@@ -72,7 +72,9 @@ class MainPageController extends GetxController {
 
   set setDragPosition(Offset dragPosition) {
     this.dragPosition = dragPosition;
-    update();
+    if (isAddingCircle || isAddingEdge) {
+      update();
+    }
   }
 
   set setIsAddingCircle(bool isAddingCircle) {
@@ -138,6 +140,9 @@ class MainPageController extends GetxController {
     if (data?["des"] != null) {
       nodes[index].des = data?["des"];
     }
+    // if (data?["color"] != null) {
+    //   nodes[index].color = Color(int.parse(data?["color"] as String));
+    // }
     update();
   }
 }
