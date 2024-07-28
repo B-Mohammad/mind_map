@@ -15,15 +15,11 @@ class EdgeModel {
   bool operator ==(covariant EdgeModel other) {
     if (identical(this, other)) return true;
 
-    return other.leftNodeId == leftNodeId &&
-            other.rightNodeId == rightNodeId &&
-            other.color == color ||
-        other.leftNodeId == rightNodeId &&
-            other.rightNodeId == leftNodeId &&
-            other.color == color;
+    return other.leftNodeId == leftNodeId && other.rightNodeId == rightNodeId ||
+        other.leftNodeId == rightNodeId && other.rightNodeId == leftNodeId;
   }
 
   @override
   int get hashCode =>
-      leftNodeId.hashCode ^ rightNodeId.hashCode ^ color.hashCode;
+      leftNodeId.hashCode ^ rightNodeId.hashCode;
 }

@@ -184,80 +184,80 @@
 //     );
 //   }
 // }
-import 'package:flutter/material.dart';
-import 'dart:math';
+// import 'package:flutter/material.dart';
+// import 'dart:math';
 
-void main() => runApp(MyApp());
+// void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Animated Curve'),
-        ),
-        body: CurveAnimationExample(),
-      ),
-    );
-  }
-}
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       home: Scaffold(
+//         appBar: AppBar(
+//           title: Text('Animated Curve'),
+//         ),
+//         body: CurveAnimationExample(),
+//       ),
+//     );
+//   }
+// }
 
-class CurveAnimationExample extends StatefulWidget {
-  @override
-  _CurveAnimationExampleState createState() => _CurveAnimationExampleState();
-}
+// class CurveAnimationExample extends StatefulWidget {
+//   @override
+//   _CurveAnimationExampleState createState() => _CurveAnimationExampleState();
+// }
 
-class _CurveAnimationExampleState extends State<CurveAnimationExample>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
+// class _CurveAnimationExampleState extends State<CurveAnimationExample>
+//     with SingleTickerProviderStateMixin {
+//   late AnimationController _controller;
+//   late Animation<double> _animation;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    )..repeat(reverse: true);
+//   @override
+//   void initState() {
+//     super.initState();
+//     _controller = AnimationController(
+//       duration: const Duration(seconds: 2),
+//       vsync: this,
+//     )..repeat(reverse: true);
 
-    _animation = Tween<double>(begin: 0, end: 1).animate(_controller);
-  }
+//     _animation = Tween<double>(begin: 0, end: 1).animate(_controller);
+//   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     _controller.dispose();
+//     super.dispose();
+//   }
 
-  Offset getCurvePosition(double t) {
-    // تعریف مسیر منحنی
-    double x = 200 * cos(pi * t);
-    double y = 200 * sin(pi * t);
-    return Offset(x, y);
-  }
+//   Offset getCurvePosition(double t) {
+//     // تعریف مسیر منحنی
+//     double x = 200 * cos(pi * t);
+//     double y = 200 * sin(pi * t);
+//     return Offset(x, y);
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: AnimatedBuilder(
-        animation: _animation,
-        builder: (context, child) {
-          Offset position = getCurvePosition(_animation.value);
-          return Transform.translate(
-            offset: position,
-            child: child,
-          );
-        },
-        child: Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            color: Colors.blue,
-            shape: BoxShape.circle,
-          ),
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Center(
+//       child: AnimatedBuilder(
+//         animation: _animation,
+//         builder: (context, child) {
+//           Offset position = getCurvePosition(_animation.value);
+//           return Transform.translate(
+//             offset: position,
+//             child: child,
+//           );
+//         },
+//         child: Container(
+//           width: 50,
+//           height: 50,
+//           decoration: BoxDecoration(
+//             color: Colors.blue,
+//             shape: BoxShape.circle,
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

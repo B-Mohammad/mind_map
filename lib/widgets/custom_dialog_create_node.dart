@@ -1,13 +1,13 @@
 // ignore_for_file: must_be_immutable
 
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class CustomDialogCreateNode extends StatefulWidget {
   Map<String, String?>? data;
+
   CustomDialogCreateNode({
     super.key,
     required this.data,
@@ -37,26 +37,29 @@ class _CustomDialogCreateNodeState extends State<CustomDialogCreateNode> {
   }
 
   void _pickColor() {
+    Color tempColor = _currentColor;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Pick a color!'),
+          title: const Text('Pick a color!'),
           content: SingleChildScrollView(
             child: ColorPicker(
               pickerColor: _currentColor,
               onColorChanged: (Color color) {
                 setState(() {
-                  _currentColor = color;
+                  tempColor = color;
                 });
               },
               pickerAreaHeightPercent: 0.8,
+              portraitOnly: true,
             ),
           ),
           actions: <Widget>[
             ElevatedButton(
-              child: Text('Got it'),
+              child: const Text('Got it'),
               onPressed: () {
+                _currentColor = tempColor;
                 Navigator.of(context).pop();
               },
             ),
@@ -69,12 +72,11 @@ class _CustomDialogCreateNodeState extends State<CustomDialogCreateNode> {
   @override
   void initState() {
     widget.data ??= {};
-    // if (widget.data?["color"] == null) {
-    //   _currentColor = Colors.blue;
-    // } else {
-    //   _currentColor = Color(int.parse(widget.data?["color"] as String));
-    // }
-    // print(data);
+    if (widget.data?["color"] == null || widget.data?["color"] == "") {
+      _currentColor = Colors.blue;
+    } else {
+      _currentColor = widget.data?["color"]!.toColor() as Color;
+    }
     if (widget.data?["imgUrl"] != null && widget.data?["imgUrl"] != "") {
       _selectedImage = File(widget.data?["imgUrl"] as String);
     }
@@ -114,40 +116,39 @@ class _CustomDialogCreateNodeState extends State<CustomDialogCreateNode> {
             ),
           ),
           const SizedBox(height: 20),
-          // _selectedImage == null
-          //     ?
           Container(
             width: double.infinity,
+            height: 130,
             decoration: BoxDecoration(
                 image: _selectedImage != null
-                    ? DecorationImage(image: FileImage(_selectedImage!))
+                    ? DecorationImage(
+                        image: FileImage(_selectedImage!), fit: BoxFit.contain)
                     : null,
                 border: Border.all(color: Colors.grey),
                 borderRadius: BorderRadius.circular(8)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  const Text("Select image"),
+                  if (_selectedImage == null) const Text("Select image"),
                   const SizedBox(height: 8),
                   ElevatedButton(
-                      onPressed: _pickImage, child: const Text("Select"))
+                      onPressed: _pickImage,
+                      child: Text(_selectedImage != null ? "edit" : "Select")),
+                  const SizedBox(height: 8),
+                  if (_selectedImage != null)
+                    ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _selectedImage = null;
+                          });
+                        },
+                        child: const Text("delete")),
                 ],
               ),
             ),
           ),
-          // : Column(
-          //     children: [
-          //       ClipRRect(
-          //         borderRadius: BorderRadius.circular(8),
-          //         child:
-          //       ),
-          //       const SizedBox(height: 8),
-          //       ElevatedButton(
-          //           onPressed: _pickImage,
-          //           child: const Text("Select again"))
-          //     ],
-          //   ),
           const SizedBox(height: 20),
           TextField(
             controller: desTextEditingController,
@@ -165,8 +166,15 @@ class _CustomDialogCreateNodeState extends State<CustomDialogCreateNode> {
           const SizedBox(height: 20),
           Row(
             children: [
-              Text("Select Node Color:"),
-              IconButton(onPressed: () {}, icon: Icon(Icons.colorize_outlined)),
+              const Text("Select Node Color:"),
+              const SizedBox(
+                width: 8,
+              ),
+              IconButton(
+                  onPressed: _pickColor,
+                  icon: const Icon(
+                    Icons.colorize_outlined,
+                  )),
             ],
           ),
           const SizedBox(height: 20),
@@ -186,7 +194,7 @@ class _CustomDialogCreateNodeState extends State<CustomDialogCreateNode> {
                 child: const Text('Submit'),
                 onPressed: () {
                   if (nameTextEditingController.text.trim().isNotEmpty) {
-                    // widget.data?["color"] = _currentColor.toString();
+                    widget.data?["color"] = _currentColor.toHexString();
                     widget.data?["name"] =
                         nameTextEditingController.text.trim();
                     if (_selectedImage == null) {

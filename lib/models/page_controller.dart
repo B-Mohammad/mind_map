@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:get/get.dart';
 import 'package:mind_map/models/edge_model.dart';
 import 'package:mind_map/models/node_model.dart';
@@ -8,15 +9,11 @@ class MainPageController extends GetxController {
   Set<EdgeModel> edges = {};
   bool isAddingCircle = false;
   bool isAddingEdge = false;
+  bool isDragMode = false;
   Offset dragPosition = Offset.zero;
   int lock = 0;
   int? selectedNode;
-  // bool temp = false;
-
-  // set setTemp(bool temp) {
-  //   this.temp = temp;
-  //   update();
-  // }
+  bool rebuild = false;
 
   void cancelActs() {
     selectedNode = null;
@@ -27,15 +24,6 @@ class MainPageController extends GetxController {
   }
 
   void deleteNode(int index, List<EdgeModel> list) {
-    // print(index);
-    // print(list);
-    // Set<EdgeModel> temp = {};
-    // for (var element in edges) {
-    //   if (element.leftNodeId == index || element.rightNodeId == index) {
-    //     temp.add(element);
-    //   }
-    // }
-    // print(i);
     edges.removeAll(list.toSet());
     nodes.removeAt(index);
     update();
@@ -43,10 +31,7 @@ class MainPageController extends GetxController {
 
   void deleteEdge(EdgeModel index) {
     edges.remove(index);
-    // print(temp);
-    // setTemp = !temp;
-    // print(temp);
-    // setIsAddingEdge = true;
+    rebuild = !rebuild;
     update();
   }
 
@@ -64,9 +49,9 @@ class MainPageController extends GetxController {
         name: name,
         color: color,
         des: des,
-        imageUrl: imageUrl));
-    isAddingCircle = false;
+        imagePath: imageUrl));
 
+    isAddingCircle = false;
     update();
   }
 
@@ -78,20 +63,28 @@ class MainPageController extends GetxController {
   }
 
   set setIsAddingCircle(bool isAddingCircle) {
-    this.isAddingCircle = isAddingCircle;
-    update();
+    if (!isAddingEdge) {
+      this.isAddingCircle = isAddingCircle;
+    }
+    // update();
+  }
+
+  set setIsDragMode(bool isDragMode) {
+    this.isDragMode = isDragMode;
+
+    // update();
   }
 
   set setIsAddingEdge(bool isAddingEdge) {
-    this.isAddingEdge = isAddingEdge;
-    update();
+    if (!isAddingCircle) {
+      this.isAddingEdge = isAddingEdge;
+    }
+    // update();
   }
 
   void changeNodePos(int index, Offset pos) {
     nodes[index].pos = pos;
-    // print("++++$pos");
     update();
-    // print(nodes[index].pos);
   }
 
   void drawLine(int index) {
@@ -100,7 +93,9 @@ class MainPageController extends GetxController {
       if (lock % 2 == 0 && index != selectedNode) {
         isAddingEdge = false;
         edges.add(EdgeModel(
-            leftNodeId: nodes[selectedNode!].id, rightNodeId: nodes[index].id));
+            color: nodes[selectedNode!].color,
+            leftNodeId: nodes[selectedNode!].id,
+            rightNodeId: nodes[index].id));
 
         isAddingEdge = false;
       } else if (lock % 2 == 0 && index == selectedNode) {
@@ -110,39 +105,35 @@ class MainPageController extends GetxController {
       }
     }
     update();
-    // print(edges);
-  }
-
-  Set<List<Offset>> getPoses() {
-    Set<List<Offset>> pos = {};
-    for (var element in edges) {
-      // print(nodes[element.leftNodeId].pos);
-      pos.add([
-        nodes.singleWhere((e) => e.id == element.leftNodeId).pos +
-            const Offset(80, 45),
-        nodes.singleWhere((e) => e.id == element.rightNodeId).pos +
-            const Offset(80, 45)
-      ]);
-    }
-    // print(pos);
-    // update();
-    return pos;
   }
 
   void updateNode(Map<String, String?>? data, int index) async {
-    print(data);
+    debugPrint(data.toString());
     if (data?["name"] != null) {
       nodes[index].name = data?["name"];
     }
     if (data?["imgUrl"] != null) {
-      nodes[index].imageUrl = data?["imgUrl"];
+      nodes[index].imagePath = data?["imgUrl"];
     }
     if (data?["des"] != null) {
       nodes[index].des = data?["des"];
     }
-    // if (data?["color"] != null) {
-    //   nodes[index].color = Color(int.parse(data?["color"] as String));
-    // }
+    if (data?["color"] != null) {
+      nodes[index].color = data?["color"]!.toColor() as Color;
+    }
     update();
   }
+
+  // Set<List<Offset>> getPoses() {
+  //   Set<List<Offset>> pos = {};
+  //   for (var element in edges) {
+  //     pos.add([
+  //       nodes.singleWhere((e) => e.id == element.leftNodeId).pos +
+  //           const Offset(80, 45),
+  //       nodes.singleWhere((e) => e.id == element.rightNodeId).pos +
+  //           const Offset(80, 45)
+  //     ]);
+  //   }
+  //   return pos;
+  // }
 }

@@ -47,11 +47,13 @@ class _CustomDialogDeleteNodeState extends State<CustomDialogDeleteNode> {
           DropdownButton<int>(
             isExpanded: true,
             value: _selectedValue,
-            hint: const Text("Select the item you want to delete"),
             items: widget.items.indexed
                 .map((e) => DropdownMenuItem<int>(
                       value: e.$1,
-                      child: Text(e.$2),
+                      child: Text(
+                        e.$2,
+                        style: const TextStyle(fontWeight: FontWeight.normal),
+                      ),
                     ))
                 .toList(),
             onChanged: (value) {
