@@ -45,7 +45,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   void saveImage(Uint8List imageData, String fileName) {
-    saveImageToDisk(imageData, fileName);
+    SaveImageImp().saveToDisk(imageData, fileName);
   }
 
   List<NodeWidget> createNodeWidget() {
