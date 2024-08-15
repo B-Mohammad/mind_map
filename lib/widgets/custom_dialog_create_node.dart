@@ -1,9 +1,10 @@
 // ignore_for_file: must_be_immutable
 
 import 'dart:io';
-import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:image_picker/image_picker.dart';
 
 class CustomDialogCreateNode extends StatefulWidget {
   Map<String, String?>? data;
@@ -24,14 +25,11 @@ class _CustomDialogCreateNodeState extends State<CustomDialogCreateNode> {
   late Color _currentColor;
 
   Future<void> _pickImage() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-    );
-
-    if (result != null) {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
       setState(() {
-        // print(result.files.single.path);
-        _selectedImage = File(result.files.single.path!);
+        _selectedImage = File(image.path);
       });
     }
   }
@@ -115,14 +113,19 @@ class _CustomDialogCreateNodeState extends State<CustomDialogCreateNode> {
               border: OutlineInputBorder(),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Container(
             width: double.infinity,
             height: 130,
             decoration: BoxDecoration(
                 image: _selectedImage != null
-                    ? DecorationImage(
-                        image: FileImage(_selectedImage!), fit: BoxFit.contain)
+                    ? kIsWeb
+                        ? DecorationImage(
+                            image: NetworkImage(_selectedImage!.path),
+                            fit: BoxFit.contain)
+                        : DecorationImage(
+                            image: FileImage(_selectedImage!),
+                            fit: BoxFit.contain)
                     : null,
                 border: Border.all(color: Colors.grey),
                 borderRadius: BorderRadius.circular(8)),

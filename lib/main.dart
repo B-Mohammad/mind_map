@@ -15,10 +15,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Mind Map',
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text("Mind Map"),
-          centerTitle: true,
-        ),
         backgroundColor: Colors.grey[200],
         body: const MainPage(),
       ),

@@ -9,6 +9,7 @@ class MainPageController extends GetxController {
   Set<EdgeModel> edges = {};
   bool isAddingCircle = false;
   bool isAddingEdge = false;
+  bool isCapMode = false;
   bool isDragMode = false;
   Offset dragPosition = Offset.zero;
   int lock = 0;
@@ -80,6 +81,13 @@ class MainPageController extends GetxController {
       this.isAddingEdge = isAddingEdge;
     }
     // update();
+  }
+
+  set setIsCapMode(bool isCapMode) {
+    if (!isAddingCircle && !isAddingEdge) {
+      this.isCapMode = isCapMode;
+    }
+    update();
   }
 
   void changeNodePos(int index, Offset pos) {

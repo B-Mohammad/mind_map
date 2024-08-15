@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mind_map/models/node_model.dart';
 
@@ -51,12 +52,18 @@ class NodeWidget extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius:
                           const BorderRadius.vertical(top: Radius.circular(7)),
-                      child: Image.file(
-                        File(nodeModel.imagePath!),
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        // height: 44,
-                      ),
+                      child: kIsWeb
+                          ? Image.network(
+                              nodeModel.imagePath!,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                            )
+                          : Image.file(
+                              File(nodeModel.imagePath!),
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              // height: 44,
+                            ),
                     ),
                   ),
                 Expanded(

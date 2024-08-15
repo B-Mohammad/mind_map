@@ -36,8 +36,11 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   get: ^4.6.6
-  file_picker: ^8.0.5
   flutter_colorpicker: ^1.1.0
+  screenshot: ^2.5.0
+  image_picker: ^1.1.2
+  path_provider: ^2.1.4
+  html: ^0.15.4
   
 
 dev_dependencies:
